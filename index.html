@@ -52,23 +52,23 @@
 
   <!-- CHARACTER SELECT -->
   <div id="character-select">
-    <div class="char-card" data-name="lana">
-      <div class="char-avatar" style="background-image:url('https://i.postimg.cc/8pL3vXJ.png')"></div>
+    <div class="char-card" data-id="lana">
+      <div class="char-avatar" style="background-image:url('https://i.imgur.com/8pL3vXJ.png')"></div>
       <div class="char-name">Lana</div>
       <div class="char-tag" style="background:#ff6b9d;">Flirty Tease</div>
     </div>
-    <div class="char-card" data-name="sophia">
-      <div class="char-avatar" style="background-image:url('https://i.postimg.cc/QzR5mP2.png')"></div>
+    <div class="char-card" data-id="sophia">
+      <div class="char-avatar" style="background-image:url('https://i.imgur.com/QzR5mP2.png')"></div>
       <div class="char-name">Sophia</div>
       <div class="char-tag" style="background:#9c27b0;">Dominant Queen</div>
     </div>
-    <div class="char-card" data-name="emma">
-      <div class="char-avatar" style="background-image:url('https://i.postimg.cc/7kL9vF3.png')"></div>
+    <div class="char-card" data-id="emma">
+      <div class="char-avatar" style="background-image:url('https://i.imgur.com/7kL9vF3.png')"></div>
       <div class="char-name">Emma</div>
       <div class="char-tag" style="background:#ff9800;">Shy Cutie</div>
     </div>
-    <div class="char-card" data-name="mia">
-      <div class="char-avatar" style="background-image:url('https://i.postimg.cc/XmN2pR8.png')"></div>
+    <div class="char-card" data-id="mia">
+      <div class="char-avatar" style="background-image:url('https://i.imgur.com/XmN2pR8.png')"></div>
       <div class="char-name">Mia</div>
       <div class="char-tag" style="background:#e91e63;">Bratty Firecracker</div>
     </div>
@@ -111,29 +111,33 @@
     const backBtn = document.getElementById('back-btn');
 
     const characters = {
-      lana: {name:"Lana", avatar:"https://i.postimg.cc/8pL3vXJ.png", nude:"https://i.postimg.cc/3vP9kL2.jpg",
+      lana: {name:"Lana", avatar:"https://i.imgur.com/8pL3vXJ.png", nude:"https://i.imgur.com/3vP9kL2.jpg",
         clothes:['blouse','bra','skirt','stockings','panties','heels'],
         dialogue:{intro:["Let's get naughty!"], playerNaked:["Stroke it!"], aiNaked:["I'm nude!"]},
         forfeitStories:{player:["You stroke on camera, cock throbbing."], ai:["Lana fingers her wet pussy and moans."]}
       },
-      sophia: {name:"Sophia", avatar:"https://i.postimg.cc/QzR5mP2.png", nude:"https://i.postimg.cc/5nR7tY9.jpg",
+      sophia: {name:"Sophia", avatar:"https://i.imgur.com/QzR5mP2.png", nude:"https://i.imgur.com/5nR7tY9.jpg",
         clothes:['corset','bra','pants','boots','panties','gloves'],
         dialogue:{intro:["Obey."], playerNaked:["Streak!"], aiNaked:["Worship me."]},
         forfeitStories:{player:["You kneel naked, begging."], ai:["Sophia cums on your face."]}
       },
-      emma: {name:"Emma", avatar:"https://i.postimg.cc/7kL9vF3.png", nude:"https://i.postimg.cc/1qW4xP6.jpg",
+      emma: {name:"Emma", avatar:"https://i.imgur.com/7kL9vF3.png", nude:"https://i.imgur.com/1qW4xP6.jpg",
         clothes:['sweater','shirt','skirt','socks','panties','shoes'],
         dialogue:{intro:["U-um..."], playerNaked:["Masturbate?"], aiNaked:["Like my nude?"]},
         forfeitStories:{player:["Emma watches you masturbate, blushing."], ai:["Emma touches her clit shyly, cumming softly."]}
       },
-      mia: {name:"Mia", avatar:"https://i.postimg.cc/XmN2pR8.png", nude:"https://i.postimg.cc/9kM2vL1.jpg",
+      mia: {name:"Mia", avatar:"https://i.imgur.com/XmN2pR8.png", nude:"https://i.imgur.com/9kM2vL1.jpg",
         clothes:['crop top','bra','shorts','sneakers','panties','cap'],
         dialogue:{intro:["Loser obeys."], playerNaked:["Jerk in public!"], aiNaked:["I lost."]},
         forfeitStories:{player:["Mia laughs as you jerk, filming."], ai:["Mia squirts, taunting you."]}
       }
     };
 
-    const playerNudes = ['https://i.postimg.cc/7kP9vR2.jpg','https://i.postimg.cc/4mL8xT1.jpg','https://i.postimg.cc/9nR3pQ7.jpg'];
+    const playerNudes = [
+      "https://i.imgur.com/7kP9vR2.jpg",
+      "https://i.imgur.com/4mL8xT1.jpg",
+      "https://i.imgur.com/9nR3pQ7.jpg"
+    ];
 
     let currentChar = null;
     let playerClothes = ['jacket','shirt','belt','pants','socks','underwear'];
@@ -148,9 +152,8 @@
     }
 
     function startGame(key) {
-      console.log("Starting game with:", key); // DEBUG
       if (!characters[key]) {
-        alert("Error: Character not found!");
+        console.error("Character not found:", key);
         return;
       }
       currentChar = characters[key];
@@ -199,7 +202,7 @@
       const story = random(currentChar.forfeitStories[loser]);
       const box = document.createElement('div');
       box.className = 'forfeit-box';
-      box.innerHTML = `<div class="forfeit-title">FORFEIT: ${task}</div><div class="forfeit-task">${task}</div><div class="forfeit-story">${story}</div>`;
+      box.innerHTML = `<div class="forfeit-title">FORFEIT: ${task}</div><div class="forfeit-story">${story}</div>`;
       output.appendChild(box);
       output.scrollTop = output.scrollHeight;
       forfeitActive = true;
@@ -260,11 +263,10 @@
       document.querySelectorAll('.nude-reveal,.forfeit-box').forEach(el => el.remove());
     }
 
-    // FIXED: Use data-name and getAttribute
+    // FIXED: Use data-id + getAttribute
     document.querySelectorAll('.char-card').forEach(card => {
       card.addEventListener('click', () => {
-        const key = card.getAttribute('data-name');
-        console.log("Clicked:", key); // DEBUG
+        const key = card.getAttribute('data-id');
         if (!key || !characters[key]) return;
         document.querySelectorAll('.char-card').forEach(c => c.classList.remove('selected'));
         card.classList.add('selected');
