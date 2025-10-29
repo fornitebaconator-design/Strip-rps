@@ -8,12 +8,12 @@
     :root{--glow:#ff6b9d;--forfeit:#ff1744}
     body{font-family:Arial,sans-serif;background:#0a001a;color:#eee;margin:0;padding:15px;min-height:100vh;text-align:center}
     #game-container{max-width:720px;margin:0 auto;background:#1a0a1a;border-radius:28px;overflow:hidden;border:3px solid var(--glow);box-shadow:0 25px 60px rgba(0,0,0,.8)}
-    header{padding:25px;background:linear-gradient(90deg,#d63384,#ff6b9d);color:#fff}
+    header{padding:25px;background:linear-gradient(90deg,#d63384,#ff6b9d);color:#fff;position:relative}
     h1{margin:0;font-size:28px}
     .nsfw-badge{position:absolute;top:12px;right:18px;background:#ff1744;color:#fff;padding:6px 14px;border-radius:25px;font-weight:bold}
 
     #character-select{padding:28px;display:grid;grid-template-columns:1fr 1fr;gap:20px}
-    .char-card{background:rgba(255,255,255,.08);border-radius:20px;padding:20px;cursor:pointer;transition:.4s;border:2px solid transparent}
+    .char-card{background:rgba(255,255,255,.08);border-radius:20px;padding:20px;cursor:pointer;transition:.4s;border:2px solid transparent;position:relative}
     .char-card:hover{transform:translateY(-10px) scale(1.03);border-color:var(--glow)}
     .char-card.selected{border:4px solid var(--glow)}
     .char-avatar{width:100px;height:100px;border-radius:50%;margin:0 auto 14px;background:center/cover;border:5px solid var(--glow)}
@@ -52,22 +52,22 @@
 
   <!-- CHARACTER SELECT -->
   <div id="character-select">
-    <div class="char-card" data-char="lana">
+    <div class="char-card" data-name="lana">
       <div class="char-avatar" style="background-image:url('https://i.postimg.cc/8pL3vXJ.png')"></div>
       <div class="char-name">Lana</div>
       <div class="char-tag" style="background:#ff6b9d;">Flirty Tease</div>
     </div>
-    <div class="char-card" data-char="sophia">
+    <div class="char-card" data-name="sophia">
       <div class="char-avatar" style="background-image:url('https://i.postimg.cc/QzR5mP2.png')"></div>
       <div class="char-name">Sophia</div>
       <div class="char-tag" style="background:#9c27b0;">Dominant Queen</div>
     </div>
-    <div class="char-card" data-char="emma">
+    <div class="char-card" data-name="emma">
       <div class="char-avatar" style="background-image:url('https://i.postimg.cc/7kL9vF3.png')"></div>
       <div class="char-name">Emma</div>
       <div class="char-tag" style="background:#ff9800;">Shy Cutie</div>
     </div>
-    <div class="char-card" data-char="mia">
+    <div class="char-card" data-name="mia">
       <div class="char-avatar" style="background-image:url('https://i.postimg.cc/XmN2pR8.png')"></div>
       <div class="char-name">Mia</div>
       <div class="char-tag" style="background:#e91e63;">Bratty Firecracker</div>
@@ -100,7 +100,6 @@
 
 <script>
   document.addEventListener('DOMContentLoaded', () => {
-    // ELEMENTS
     const output = document.getElementById('output');
     const playerCount = document.getElementById('player-count');
     const aiCount = document.getElementById('ai-count');
@@ -111,7 +110,6 @@
     const restartBtn = document.getElementById('restart');
     const backBtn = document.getElementById('back-btn');
 
-    // DATA
     const characters = {
       lana: {name:"Lana", avatar:"https://i.postimg.cc/8pL3vXJ.png", nude:"https://i.postimg.cc/3vP9kL2.jpg",
         clothes:['blouse','bra','skirt','stockings','panties','heels'],
@@ -142,7 +140,6 @@
     let aiClothes = [];
     let round = 0, forfeitActive = false;
 
-    // FUNCTIONS
     function random(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 
     function showCharacterSelect() {
@@ -151,8 +148,9 @@
     }
 
     function startGame(key) {
+      console.log("Starting game with:", key); // DEBUG
       if (!characters[key]) {
-        console.error("Character not found:", key);
+        alert("Error: Character not found!");
         return;
       }
       currentChar = characters[key];
@@ -262,11 +260,12 @@
       document.querySelectorAll('.nude-reveal,.forfeit-box').forEach(el => el.remove());
     }
 
-    // EVENTS - FIXED: Use getAttribute for data-char
+    // FIXED: Use data-name and getAttribute
     document.querySelectorAll('.char-card').forEach(card => {
       card.addEventListener('click', () => {
-        const key = card.getAttribute('data-char'); // FIXED: Use getAttribute
-        if (!key) return;
+        const key = card.getAttribute('data-name');
+        console.log("Clicked:", key); // DEBUG
+        if (!key || !characters[key]) return;
         document.querySelectorAll('.char-card').forEach(c => c.classList.remove('selected'));
         card.classList.add('selected');
         startGame(key);
@@ -279,7 +278,6 @@
     document.getElementById('scissors').addEventListener('click', () => play('scissors'));
     restartBtn.addEventListener('click', restartGame);
 
-    // INIT
     showCharacterSelect();
   });
 </script>
