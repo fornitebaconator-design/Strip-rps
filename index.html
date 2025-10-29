@@ -50,6 +50,7 @@
     <div class="nsfw-badge">18+</div>
   </header>
 
+  <!-- CHARACTER SELECT -->
   <div id="character-select">
     <div class="char-card" data-char="lana">
       <div class="char-avatar" style="background-image:url('https://i.postimg.cc/8pL3vXJ.png')"></div>
@@ -73,6 +74,7 @@
     </div>
   </div>
 
+  <!-- GAME SCREEN -->
   <div id="game-screen" class="hidden">
     <button class="back-btn" id="back-btn">Back</button>
     <div class="ai-info">
@@ -149,6 +151,10 @@
     }
 
     function startGame(key) {
+      if (!characters[key]) {
+        console.error("Character not found:", key);
+        return;
+      }
       currentChar = characters[key];
       aiClothes = [...currentChar.clothes];
 
@@ -159,7 +165,6 @@
       aiDisplayName.textContent = currentChar.name;
       aiAvatar.style.backgroundImage = `url('${currentChar.avatar}')`;
 
-      // FIXED: Only call restartGame after currentChar is set
       restartGame();
     }
 
@@ -246,7 +251,7 @@
     }
 
     function restartGame() {
-      if (!currentChar) return; // FIXED: Prevent crash if called too early
+      if (!currentChar) return;
       playerClothes = ['jacket','shirt','belt','pants','socks','underwear'];
       aiClothes = [...currentChar.clothes];
       round = 0; forfeitActive = false;
@@ -257,12 +262,14 @@
       document.querySelectorAll('.nude-reveal,.forfeit-box').forEach(el => el.remove());
     }
 
-    // EVENTS
+    // EVENTS - FIXED: Use getAttribute for data-char
     document.querySelectorAll('.char-card').forEach(card => {
       card.addEventListener('click', () => {
+        const key = card.getAttribute('data-char'); // FIXED: Use getAttribute
+        if (!key) return;
         document.querySelectorAll('.char-card').forEach(c => c.classList.remove('selected'));
         card.classList.add('selected');
-        startGame(card.dataset.char);
+        startGame(key);
       });
     });
 
