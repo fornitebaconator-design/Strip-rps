@@ -1,13 +1,280 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Female Strip Rock Paper Scissors</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Strip RPS</title>
+  <style>
+    :root{--glow:#ff6b9d;--forfeit:#ff1744}
+    body{font-family:Arial,sans-serif;background:#0a001a;color:#eee;margin:0;padding:15px;min-height:100vh;text-align:center}
+    #game-container{max-width:720px;margin:0 auto;background:#1a0a1a;border-radius:28px;overflow:hidden;border:3px solid var(--glow);box-shadow:0 25px 60px rgba(0,0,0,.8)}
+    header{padding:25px;background:linear-gradient(90deg,#d63384,#ff6b9d);color:#fff}
+    h1{margin:0;font-size:28px}
+    .nsfw-badge{position:absolute;top:12px;right:18px;background:#ff1744;color:#fff;padding:6px 14px;border-radius:25px;font-weight:bold}
+
+    #character-select{padding:28px;display:grid;grid-template-columns:1fr 1fr;gap:20px}
+    .char-card{background:rgba(255,255,255,.08);border-radius:20px;padding:20px;cursor:pointer;transition:.4s;border:2px solid transparent}
+    .char-card:hover{transform:translateY(-10px) scale(1.03);border-color:var(--glow)}
+    .char-card.selected{border:4px solid var(--glow)}
+    .char-avatar{width:100px;height:100px;border-radius:50%;margin:0 auto 14px;background:center/cover;border:5px solid var(--glow)}
+    .char-name{font-weight:bold;font-size:19px;color:#fff;margin:10px 0 6px}
+    .char-tag{font-size:13px;padding:5px 14px;border-radius:25px;display:inline-block;font-weight:bold;color:#fff}
+
+    #game-screen{display:none;padding:28px;position:relative}
+    .back-btn{position:absolute;top:18px;left:18px;background:rgba(255,255,255,.15);border:none;border-radius:50%;width:48px;height:48px;font-size:24px;color:#fff;cursor:pointer}
+    .ai-info{display:flex;align-items:center;justify-content:center;gap:18px;margin-bottom:22px}
+    .ai-avatar-large{width:90px;height:90px;border-radius:50%;background:center/cover;border:5px solid var(--glow)}
+    .ai-name{font-size:26px;font-weight:bold;color:var(--glow)}
+    button.choice{padding:20px 36px;margin:12px;font-size:21px;background:linear-gradient(45deg,#d63384,#ff6b9d);color:#fff;border:none;border-radius:50px;min-width:130px}
+    .stats{display:flex;justify-content:space-around;margin:25px 0;font-size:18px}
+    .stat-box{background:rgba(255,255,255,.12);padding:14px 24px;border-radius:30px;min-width:120px}
+    .progress-container{height:14px;background:rgba(255,255,255,.08);border-radius:7px;margin:20px 0;overflow:hidden;border:1px solid var(--glow)}
+    .progress-bar{height:100%;width:0%;background:linear-gradient(90deg,#ff6b9d,#ff1744);transition:width .9s}
+    #output{margin-top:28px;padding:20px;background:rgba(0,0,0,.4);border:3px solid var(--glow);border-radius:18px;max-height:540px;overflow-y:auto;font-size:16px;line-height:1.9}
+    .ai-speech{color:var(--glow);font-style:italic;background:rgba(255,107,157,.18);padding:14px 18px;border-radius:22px;display:inline-block;margin:12px 0}
+    .player-speech{font-weight:bold;color:#fff;margin:10px 0;font-size:16.5px}
+    .round-header{font-size:15px;color:#ff99cc;text-align:center;margin:14px 0 8px}
+    .forfeit-box{margin:25px auto;padding:18px;background:rgba(255,23,68,.15);border:3px solid var(--forfeit);border-radius:20px}
+    .nude-reveal{margin:25px auto;max-width:92%;border-radius:22px;overflow:hidden;border:5px solid var(--glow);position:relative}
+    .nude-reveal::after{content:'FULLY EXPOSED';position:absolute;top:12px;left:50%;transform:translateX(-50%);background:#ff1744;color:#fff;padding:6px 16px;border-radius:20px}
+    .nude-reveal img{width:100%;height:auto;display:block}
+    #restart{display:none;margin:28px auto;background:#28a745;padding:18px 40px;font-size:20px;border-radius:50px;color:#fff}
+    .hidden{display:none}
+  </style>
+</head>
+<body>
+
+<div id="game-container">
+  <header>
+    <h1>Strip RPS</h1>
+    <div class="nsfw-badge">18+</div>
+  </header>
+
+  <div id="character-select">
+    <div class="char-card" data-char="lana">
+      <div class="char-avatar" style="background-image:url('https://i.postimg.cc/8pL3vXJ.png')"></div>
+      <div class="char-name">Lana</div>
+      <div class="char-tag" style="background:#ff6b9d;">Flirty Tease</div>
+    </div>
+    <div class="char-card" data-char="sophia">
+      <div class="char-avatar" style="background-image:url('https://i.postimg.cc/QzR5mP2.png')"></div>
+      <div class="char-name">Sophia</div>
+      <div class="char-tag" style="background:#9c27b0;">Dominant Queen</div>
+    </div>
+    <div class="char-card" data-char="emma">
+      <div class="char-avatar" style="background-image:url('https://i.postimg.cc/7kL9vF3.png')"></div>
+      <div class="char-name">Emma</div>
+      <div class="char-tag" style="background:#ff9800;">Shy Cutie</div>
+    </div>
+    <div class="char-card" data-char="mia">
+      <div class="char-avatar" style="background-image:url('https://i.postimg.cc/XmN2pR8.png')"></div>
+      <div class="char-name">Mia</div>
+      <div class="char-tag" style="background:#e91e63;">Bratty Firecracker</div>
+    </div>
+  </div>
+
+  <div id="game-screen" class="hidden">
+    <button class="back-btn" id="back-btn">Back</button>
+    <div class="ai-info">
+      <div class="ai-avatar-large" id="ai-avatar"></div>
+      <div class="ai-name" id="ai-name"></div>
+    </div>
+
+    <button class="choice" id="rock">Rock</button>
+    <button class="choice" id="paper">Paper</button>
+    <button class="choice" id="scissors">Scissors</button>
+
+    <div class="stats">
+      <div class="stat-box">You: <span id="player-count">6</span></div>
+      <div class="stat-box"><span id="ai-display-name"></span>: <span id="ai-count">6</span></div>
+    </div>
+
+    <div class="progress-container"><div class="progress-bar" id="progress"></div></div>
+
+    <div id="output"></div>
+    <button id="restart" class="hidden">Play Again</button>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // ELEMENTS
+    const output = document.getElementById('output');
+    const playerCount = document.getElementById('player-count');
+    const aiCount = document.getElementById('ai-count');
+    const aiName = document.getElementById('ai-name');
+    const aiDisplayName = document.getElementById('ai-display-name');
+    const aiAvatar = document.getElementById('ai-avatar');
+    const progress = document.getElementById('progress');
+    const restartBtn = document.getElementById('restart');
+    const backBtn = document.getElementById('back-btn');
+
+    // DATA
+    const characters = {
+      lana: {name:"Lana", avatar:"https://i.postimg.cc/8pL3vXJ.png", nude:"https://i.postimg.cc/3vP9kL2.jpg",
+        clothes:['blouse','bra','skirt','stockings','panties','heels'],
+        dialogue:{intro:["Let's get naughty!"], playerNaked:["Stroke it!"], aiNaked:["I'm nude!"]},
+        forfeitStories:{player:["You stroke on camera, cock throbbing."], ai:["Lana fingers her wet pussy and moans."]}
+      },
+      sophia: {name:"Sophia", avatar:"https://i.postimg.cc/QzR5mP2.png", nude:"https://i.postimg.cc/5nR7tY9.jpg",
+        clothes:['corset','bra','pants','boots','panties','gloves'],
+        dialogue:{intro:["Obey."], playerNaked:["Streak!"], aiNaked:["Worship me."]},
+        forfeitStories:{player:["You kneel naked, begging."], ai:["Sophia cums on your face."]}
+      },
+      emma: {name:"Emma", avatar:"https://i.postimg.cc/7kL9vF3.png", nude:"https://i.postimg.cc/1qW4xP6.jpg",
+        clothes:['sweater','shirt','skirt','socks','panties','shoes'],
+        dialogue:{intro:["U-um..."], playerNaked:["Masturbate?"], aiNaked:["Like my nude?"]},
+        forfeitStories:{player:["Emma watches you masturbate, blushing."], ai:["Emma touches her clit shyly, cumming softly."]}
+      },
+      mia: {name:"Mia", avatar:"https://i.postimg.cc/XmN2pR8.png", nude:"https://i.postimg.cc/9kM2vL1.jpg",
+        clothes:['crop top','bra','shorts','sneakers','panties','cap'],
+        dialogue:{intro:["Loser obeys."], playerNaked:["Jerk in public!"], aiNaked:["I lost."]},
+        forfeitStories:{player:["Mia laughs as you jerk, filming."], ai:["Mia squirts, taunting you."]}
+      }
+    };
+
+    const playerNudes = ['https://i.postimg.cc/7kP9vR2.jpg','https://i.postimg.cc/4mL8xT1.jpg','https://i.postimg.cc/9nR3pQ7.jpg'];
+
+    let currentChar = null;
+    let playerClothes = ['jacket','shirt','belt','pants','socks','underwear'];
+    let aiClothes = [];
+    let round = 0, forfeitActive = false;
+
+    // FUNCTIONS
+    function random(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+    function showCharacterSelect() {
+      document.getElementById('game-screen').classList.add('hidden');
+      document.getElementById('character-select').style.display = 'grid';
+    }
+
+    function startGame(key) {
+      currentChar = characters[key];
+      aiClothes = [...currentChar.clothes];
+
+      document.getElementById('character-select').style.display = 'none';
+      document.getElementById('game-screen').classList.remove('hidden');
+
+      aiName.textContent = currentChar.name;
+      aiDisplayName.textContent = currentChar.name;
+      aiAvatar.style.backgroundImage = `url('${currentChar.avatar}')`;
+
+      // FIXED: Only call restartGame after currentChar is set
+      restartGame();
+    }
+
+    function updateCounts() {
+      playerCount.textContent = playerClothes.length;
+      aiCount.textContent = aiClothes.length;
+      const total = 12, removed = total - (playerClothes.length + aiClothes.length);
+      progress.style.width = (removed / total * 100) + '%';
+    }
+
+    function strip(loser) {
+      let desc = '';
+      if (loser === 'player' && playerClothes.length > 0) {
+        const item = playerClothes.shift();
+        desc = `You remove your <strong>${item}</strong>.`;
+      } else if (loser === 'ai' && aiClothes.length > 0) {
+        const item = aiClothes.shift();
+        desc = `<strong>${currentChar.name}</strong> removes her <strong>${item}</strong>.`;
+      }
+      return desc;
+    }
+
+    function showNude(url, label) {
+      const div = document.createElement('div');
+      div.className = 'nude-reveal';
+      div.innerHTML = `<img src="${url}" alt="${label}" onerror="this.src='https://via.placeholder.com/400x600/333/fff?text=AI+Nude';">`;
+      output.appendChild(div);
+      output.scrollTop = output.scrollHeight;
+    }
+
+    function showForfeit(winner) {
+      const loser = winner === 'player' ? 'ai' : 'player';
+      const task = random(currentChar.dialogue[loser + 'Naked']);
+      const story = random(currentChar.forfeitStories[loser]);
+      const box = document.createElement('div');
+      box.className = 'forfeit-box';
+      box.innerHTML = `<div class="forfeit-title">FORFEIT: ${task}</div><div class="forfeit-task">${task}</div><div class="forfeit-story">${story}</div>`;
+      output.appendChild(box);
+      output.scrollTop = output.scrollHeight;
+      forfeitActive = true;
+      setTimeout(() => { if (box.parentNode) box.remove(); forfeitActive = false; }, 15000);
+    }
+
+    function isGameOver() {
+      if (playerClothes.length === 0) {
+        output.innerHTML += `<p style="color:#ff1744;font-weight:bold;">YOU ARE NAKED!</p>`;
+        setTimeout(() => showNude(random(playerNudes), "Your AI Nude"), 1000);
+        setTimeout(() => showForfeit('ai'), 2000);
+        return true;
+      }
+      if (aiClothes.length === 0) {
+        output.innerHTML += `<p style="color:#28a745;font-weight:bold;">${currentChar.name} IS NUDE!</p>`;
+        setTimeout(() => showNude(currentChar.nude, currentChar.name + " AI Nude"), 1000);
+        setTimeout(() => showForfeit('player'), 2000);
+        return true;
+      }
+      return false;
+    }
+
+    function play(choice) {
+      if (forfeitActive || !currentChar) return;
+      round++;
+      const aiChoice = ['rock','paper','scissors'][Math.floor(Math.random()*3)];
+      let winner = 'tie';
+      if (choice !== aiChoice) {
+        if ((choice === 'rock' && aiChoice === 'scissors') ||
+            (choice === 'paper' && aiChoice === 'rock') ||
+            (choice === 'scissors' && aiChoice === 'paper')) winner = 'player';
+        else winner = 'ai';
+      }
+
+      output.innerHTML += `<div class="round-header">Round ${round}</div><hr>`;
+      output.innerHTML += `<div class="player-speech">You: <strong>${choice.toUpperCase()}</strong></div>`;
+      output.innerHTML += `<span class="ai-speech">"I pick <strong>${aiChoice.toUpperCase()}</strong>!"</span>`;
+      if (winner === 'tie') output.innerHTML += `<span class="ai-speech">"Tie."</span>`;
+      else output.innerHTML += `<div style="margin:14px 0;">${strip(winner)}</div>`;
+
+      updateCounts();
+      if (isGameOver()) {
+        document.querySelectorAll('.choice').forEach(b => b.disabled = true);
+        restartBtn.classList.remove('hidden');
+      }
+      output.scrollTop = output.scrollHeight;
+    }
+
+    function restartGame() {
+      if (!currentChar) return; // FIXED: Prevent crash if called too early
+      playerClothes = ['jacket','shirt','belt','pants','socks','underwear'];
+      aiClothes = [...currentChar.clothes];
+      round = 0; forfeitActive = false;
+      output.innerHTML = `<span class="ai-speech">"${random(currentChar.dialogue.intro)}"</span>`;
+      updateCounts();
+      document.querySelectorAll('.choice').forEach(b => b.disabled = false);
+      restartBtn.classList.add('hidden');
+      document.querySelectorAll('.nude-reveal,.forfeit-box').forEach(el => el.remove());
+    }
+
+    // EVENTS
+    document.querySelectorAll('.char-card').forEach(card => {
+      card.addEventListener('click', () => {
+        document.querySelectorAll('.char-card').forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        startGame(card.dataset.char);
+      });
+    });
+
+    backBtn.addEventListener('click', showCharacterSelect);
+    document.getElementById('rock').addEventListener('click', () => play('rock'));
+    document.getElementById('paper').addEventListener('click', () => play('paper'));
+    document.getElementById('scissors').addEventListener('click', () => play('scissors'));
+    restartBtn.addEventListener('click', restartGame);
+
+    // INIT
+    showCharacterSelect();
+  });
+</script>
+</body>
 </html>
